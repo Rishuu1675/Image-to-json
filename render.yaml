@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: gemin-backend
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: Backend
+    buildCommand: npm ci
+    startCommand: node server.js
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Set this in Render Dashboard (do not hardcode secrets)
+      - key: GOOGLE_API_KEY
+        sync: false
+      # Optional: restrict CORS (comma-separated). If unset, backend allows all origins.
+      # Example: https://your-frontend.onrender.com
+      - key: CORS_ORIGIN
+        sync: false
+
+  - type: web
+    name: gemin-frontend
+    runtime: static
+    plan: free
+    rootDir: Frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      # Set this to your backend URL, e.g. https://gemin-backend.onrender.com
+      - key: VITE_API_BASE_URL
+        sync: false
